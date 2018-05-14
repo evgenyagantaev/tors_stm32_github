@@ -69,6 +69,7 @@ int main(void)
 
   	while (1)
   	{
+	  	HAL_Delay(1500);
 	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
 		sprintf(message, "led off\r\n");
 		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
@@ -85,6 +86,29 @@ int main(void)
 		sprintf(message, "led on\r\n");
 		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
 	  	HAL_Delay(1500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led off\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+	  	HAL_Delay(500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led on\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+	  	HAL_Delay(500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led off\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+	  	HAL_Delay(500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led on\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+	  	HAL_Delay(500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led off\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+	  	HAL_Delay(500);
+	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+		sprintf(message, "led on\r\n");
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
   	}
 
 }
