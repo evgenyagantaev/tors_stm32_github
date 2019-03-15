@@ -13,7 +13,8 @@
 ######################################
 # target
 ######################################
-TARGET = l051_tors_000_002
+#TARGET = l051_tors_000_002
+TARGET = l071_tors_01_01
 
 
 ######################################
@@ -82,7 +83,8 @@ Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c \
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32l051xx.s
+startup_stm32l071xx.s
+#startup_stm32l051xx.s
 
 
 ######################################
@@ -126,7 +128,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32L051xx
+-DSTM32L071xx
+#-DSTM32L051xx
 
 
 # AS includes
@@ -159,7 +162,8 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32L051C6Tx_FLASH.ld
+LDSCRIPT = STM32L071C8Tx_FLASH.ld
+#LDSCRIPT = STM32L051C6Tx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys
