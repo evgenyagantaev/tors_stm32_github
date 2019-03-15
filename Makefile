@@ -49,6 +49,9 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Src/main.c \
+Src/pressure_sensor_object.c \
+Src/ring_buffer_object.c \
+Src/threshold_detector_object.c \
 Src/gpio.c \
 Src/tim.c \
 Src/usart.c \

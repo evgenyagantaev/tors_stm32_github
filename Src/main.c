@@ -1,12 +1,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32l0xx_hal.h"
-#include "spi.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-
-
+#include "ring_buffer_interface.h"
+#include "pressure_sensor_interface.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -69,6 +64,7 @@ int main(void)
 
   	while (1)
   	{
+		/*
 	  	HAL_Delay(1500);
 	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
 		sprintf(message, "led off\r\n");
@@ -109,6 +105,20 @@ int main(void)
 	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
 		sprintf(message, "led on\r\n");
 		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+		*/
+
+
+		uint16_t pressure = read_pressure_sample();
+		ring_buffer_add_sample(pressure);	
+		uint16_t pressure_aux = ring_buffer_read_sample(pressure);	
+		//threshold_detector_action();
+
+		sprintf(message, "%d %d\r\n", pressure, pressure_aux);
+		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+				
+
+
+
   	}
 
 }
@@ -189,14 +199,14 @@ void SystemClock_Config(void)
 
     /**Configure the Systick interrupt time 
     */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  //HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
     /**Configure the Systick 
     */
-  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+  //HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  //HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 /* USER CODE BEGIN 4 */

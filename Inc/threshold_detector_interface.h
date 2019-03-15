@@ -1,0 +1,10 @@
+#ifndef THRESHOLD_DETECTOR_INTERFACE
+#define THRESHOLD_DETECTOR_INTERFACE
+
+
+
+
+
+
+
+#endif

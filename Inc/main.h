@@ -39,11 +39,15 @@
 #ifndef __MAIN_H
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
-
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
+#include "stdint.h"
+#include "stm32l0xx_hal.h"
+#include "stm32l0xx_hal_dma.h"
+#include "stm32l0xx_hal_uart.h"
+#include "stm32l0xx.h"
+#include "spi.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
 /* Private define ------------------------------------------------------------*/
 
 #define debug_oscil0_Pin GPIO_PIN_2

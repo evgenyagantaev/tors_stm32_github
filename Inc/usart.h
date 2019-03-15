@@ -47,15 +47,7 @@
 #include "stm32l0xx_hal.h"
 #include "main.h"
 
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-extern UART_HandleTypeDef huart1;
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
+UART_HandleTypeDef huart1;
 
 extern void _Error_Handler(char *, int);
 
