@@ -1,4 +1,5 @@
 #include "pressure_sensor_object.h"
+#include "pressure_sensor_interface.h"
 
 //****************************************************************************
 uint8_t write_byte(uint8_t data)
@@ -21,7 +22,7 @@ uint8_t write_byte(uint8_t data)
 }
 
 //****************************************************************************
-uint16_t read_pressure_sample()
+uint16_t pressure_sensor_get_sample()
 {
 
     uint8_t least_byte, med_byte, most_byte;

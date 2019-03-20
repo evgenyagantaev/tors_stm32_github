@@ -40,6 +40,7 @@
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
 #include "stdint.h"
+#include "string.h"
 #include "stm32l0xx_hal.h"
 #include "stm32l0xx_hal_dma.h"
 #include "stm32l0xx_hal_uart.h"

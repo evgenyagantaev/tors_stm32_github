@@ -2,6 +2,7 @@
 #include "main.h"
 #include "ring_buffer_interface.h"
 #include "pressure_sensor_interface.h"
+#include "threshold_detector_interface.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -30,9 +31,9 @@ void SystemClock_Config(void);
 int main(void)
 {
 
-	int i,j,k;
+	//int i,j,k;
 
-	char message[256];
+	//char message[256];
 
 
   	/* MCU Configuration----------------------------------------------------------*/
@@ -61,6 +62,8 @@ int main(void)
 
   
   	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_PIN_RESET);
+
+	threshold_detector_initialization();
 
   	while (1)
   	{
@@ -108,13 +111,31 @@ int main(void)
 		*/
 
 
-		uint16_t pressure = read_pressure_sample();
-		ring_buffer_add_sample(pressure);	
-		uint16_t pressure_aux = ring_buffer_read_sample(pressure);	
-		//threshold_detector_action();
+		uint16_t pressure = pressure_sensor_get_sample();
+		uint8_t ring_buffer_full_loop_completed = ring_buffer_add_sample(pressure);	
 
-		sprintf(message, "%d %d\r\n", pressure, pressure_aux);
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
+
+		if(ring_buffer_full_loop_completed)
+		{
+			// output saved data
+			ring_buffer_dump();
+			// stop
+			while(1)
+			{
+	  			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  			HAL_Delay(500);
+	  			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  			HAL_Delay(500);
+			}
+		}
+
+
+		//uint16_t pressure_aux = ring_buffer_read_sample(pressure);	
+		//uint8_t threshold_detector_action_result = threshold_detector_action();
+		threshold_detector_action();
+
+		//sprintf(message, "%d %d\r\n", pressure, pressure_aux);
+		//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
 				
 
 
