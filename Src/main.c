@@ -132,7 +132,8 @@ int main(void)
 
 		//uint16_t pressure_aux = ring_buffer_read_sample(pressure);	
 		//uint8_t threshold_detector_action_result = threshold_detector_action();
-		threshold_detector_action();
+		if(!ring_buffer_get_registration_flag())
+			threshold_detector_action();
 
 		//sprintf(message, "%d %d\r\n", pressure, pressure_aux);
 		//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);

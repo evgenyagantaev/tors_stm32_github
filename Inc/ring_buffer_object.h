@@ -4,7 +4,7 @@
 #include "main.h"
 
 #define RING_BUFFER_LENGTH 3000
-#define RING_BUFFER_PRE_ACTION_LENGTH 1000
+#define RING_BUFFER_PRE_ACTION_LENGTH 300
 
 static uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
 static uint32_t ring_buffer_write_index;

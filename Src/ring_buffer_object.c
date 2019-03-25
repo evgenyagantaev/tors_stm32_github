@@ -37,6 +37,10 @@ uint8_t ring_buffer_set_registration_flag()
 	ring_buffer_registration_flag = 1;
 }
 
+uint8_t ring_buffer_get_registration_flag()
+{
+	return ring_buffer_registration_flag;
+}
 
 uint8_t	ring_buffer_dump()
 {

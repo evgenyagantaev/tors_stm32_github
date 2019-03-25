@@ -8,6 +8,7 @@ uint16_t ring_buffer_read_sample();
 
 uint8_t ring_buffer_set_start_marker();
 uint8_t ring_buffer_set_registration_flag();
+uint8_t ring_buffer_get_registration_flag();
 
 uint8_t	ring_buffer_dump();
 

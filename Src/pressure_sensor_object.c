@@ -25,9 +25,11 @@ uint8_t write_byte(uint8_t data)
 uint16_t pressure_sensor_get_sample()
 {
 
+	//*
     uint8_t least_byte, med_byte, most_byte;
 	uint32_t sample;
 
+	
 	// chipselect low
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 
@@ -74,7 +76,24 @@ uint16_t pressure_sensor_get_sample()
 
 
 	current_pressure = (uint16_t)(sample>>3);
+
 	return (uint16_t)(sample>>3);
+	//*/
+
+	/*
+	//*********************** DEBUG **************************
+	static int counter = 0;
+	static int aux = 0;
+
+	counter++;
+	if(counter < 10000)
+		return 16400;
+	else
+	{
+		aux++;
+		return (17000 + aux);
+	}
+	*/
 
 	
 }
