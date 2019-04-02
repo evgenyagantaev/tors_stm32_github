@@ -4,7 +4,7 @@
 #include "threshold_detector_interface.h"
 
 #define THRESHOLD_AVERAGING_WINDOW_LENGTH 150
-#define THRESHOLD_DETECTOR_VALUE 700
+#define THRESHOLD_DETECTOR_VALUE 100
 
 static uint16_t threshold_detector_averaging_window[THRESHOLD_AVERAGING_WINDOW_LENGTH]; 
 
