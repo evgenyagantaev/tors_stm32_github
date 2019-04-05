@@ -1,19 +1,29 @@
 #include "threshold_detector_object.h"
 #include "threshold_detector_interface.h"
 #include "ring_buffer_interface.h"
+#include "pressure_sensor_interface.h"
 
 
 uint8_t threshold_detector_initialization()
 {
 
 
-	int i;
-	for(i=0; i<THRESHOLD_AVERAGING_WINDOW_LENGTH; i++)
+	int counter = 0;
+
+	while(counter < 3000)
 	{
-		threshold_detector_averaging_window[i] = 16400;
+		uint16_t pressure = pressure_sensor_get_sample();
+		if(pressure != 0)
+		{
+			ring_buffer_add_sample(pressure);
+			shift_average_window();
+			threshold_detector_averaging_window[THRESHOLD_AVERAGING_WINDOW_LENGTH-1] =  pressure;
+			counter++;
+		}
 	}
 
-	average_pressure = 16400;
+
+	average_pressure = calculate_average_pressure();
 }
 
 

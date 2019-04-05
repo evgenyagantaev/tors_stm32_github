@@ -63,6 +63,7 @@ int main(void)
   
   	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_PIN_RESET);
 
+	HAL_Delay(1000);
 	threshold_detector_initialization();
 
   	while (1)
@@ -117,30 +118,38 @@ int main(void)
 		uint8_t ring_buffer_full_loop_completed = ring_buffer_add_sample(pressure);	
 
 
-		if(ring_buffer_full_loop_completed)
+
+
+		if(!ring_buffer_get_registration_flag())
+			threshold_detector_action();
+		else
 		{
-			// output saved data
-			ring_buffer_dump();
-			// stop
-			while(1)
+			while(!ring_buffer_full_loop_completed)
 			{
-	  			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-	  			HAL_Delay(500);
-	  			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-	  			HAL_Delay(500);
+				pressure = pressure_sensor_get_sample();
+				ring_buffer_full_loop_completed = ring_buffer_add_sample(pressure);	
+				
 			}
+		        	
+					
+			// output saved data
+		    ring_buffer_dump();
+		    // stop
+		    while(1)
+		    {
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        HAL_Delay(500);
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        HAL_Delay(500);
+		    }
 		}
-
-
-		//uint8_t threshold_detector_action_result = threshold_detector_action();
-		//if(!ring_buffer_get_registration_flag())
-			//threshold_detector_action();
 
 		//*/
 
-		//sprintf(message, "%d\r\n", pressure);
-		//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
-				
+		/*
+		sprintf(message, "%d\r\n", pressure);
+		HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
+		//*/		
 
 
 
