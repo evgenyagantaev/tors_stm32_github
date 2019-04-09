@@ -39,8 +39,10 @@ uint8_t threshold_detector_action()
 	{
 		if(abs((int)((int)average_pressure - (int)last_pressure_sample)) > THRESHOLD_DETECTOR_VALUE)
 		{
-			ring_buffer_set_start_marker();
-			ring_buffer_set_registration_flag();
+			//ring_buffer_set_start_marker();
+			//ring_buffer_set_registration_flag();
+
+			return 1;
 		}
 	}
 
@@ -49,7 +51,7 @@ uint8_t threshold_detector_action()
 	shift_average_window();
 	threshold_detector_averaging_window[THRESHOLD_AVERAGING_WINDOW_LENGTH-1] =  last_pressure_sample;
 
-
+	return 0;
 }
 
 

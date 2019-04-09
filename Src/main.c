@@ -1,8 +1,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "ring_buffer_interface.h"
+#include "ring_buffer_object.h"
 #include "pressure_sensor_interface.h"
 #include "threshold_detector_interface.h"
+#include "threshold_detector_object.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -112,28 +114,130 @@ int main(void)
 		*/
 
 
-		uint16_t pressure = pressure_sensor_get_sample();
+		//uint16_t pressure = pressure_sensor_get_sample();
+	
+   		//*                                                                
+	    uint8_t least_byte, med_byte, most_byte;
+        uint32_t sample;
+	                                                                      
+	    
+	    // chipselect low
+    	GPIOA->BRR = GPIO_PIN_8 ;
+	                                                                      
+        // read most significant byte ***********
+	                                                                      
+	    // wait for spi transmitter readiness
+        //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+        SPI1->DR = 0x55;
+	    // wait while a transmission complete
+        while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	    most_byte = SPI1->DR;
+        
+	                                                                      
+	    // read medium significant byte ***********
+	    
+	    // wait for spi transmitter readiness
+        //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+        SPI1->DR = 0x55;
+	    // wait while a transmission complete
+        while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	    med_byte = SPI1->DR;
+        
+	                                                                      
+	    // read least significant byte ***********
+	    
+	    // wait for spi transmitter readiness
+        //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+        SPI1->DR = 0x55;
+	    // wait while a transmission complete
+        while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	    least_byte = SPI1->DR;
+	    
+	    // chipselect high 
+    	GPIOA->BSRR = GPIO_PIN_8 ;
+                                                                          
+                                                                          
+	                                                                      
+	    // save most significant byte ***********
+	    sample = ((uint32_t)(most_byte & 0x07))<<16;
+	    // save medium significant byte ***********
+	    sample += ((uint32_t)med_byte)<<8;
+	    // save least significant byte ***********
+        sample += least_byte;
+                                                                          
+	                                                                      
+        uint16_t pressure = (uint16_t)(sample>>2);
+        //*/
+
+		ring_buffer_array[ring_buffer_write_index % RING_BUFFER_LENGTH] = pressure;
+		ring_buffer_write_index++;
 
 		//*
-		uint8_t ring_buffer_full_loop_completed = ring_buffer_add_sample(pressure);	
-
-
-
-
-		if(!ring_buffer_get_registration_flag())
-			threshold_detector_action();
-		else
+		//if(threshold_detector_action())
+		if(abs((int)((int)ring_buffer_array[(ring_buffer_write_index-250) % RING_BUFFER_LENGTH] - (int)pressure)) > THRESHOLD_DETECTOR_VALUE)
 		{
-			while(!ring_buffer_full_loop_completed)
+			int i;
+	
+			uint32_t start_marker = ring_buffer_write_index - RING_BUFFER_PRE_ACTION_LENGTH;
+
+			for(i=0; i<(RING_BUFFER_LENGTH - RING_BUFFER_PRE_ACTION_LENGTH); i++)
 			{
-				pressure = pressure_sensor_get_sample();
-				ring_buffer_full_loop_completed = ring_buffer_add_sample(pressure);	
+	   			// chipselect low                                     
+    	        GPIOA->BRR = GPIO_PIN_8 ;
+	                                                                      
+                // read most significant byte ***********
+	                                                                      
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            most_byte = SPI1->DR;
+                
+	                                                                      
+	            // read medium significant byte ***********
+	            
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            med_byte = SPI1->DR;
+                
+	                                                                      
+	            // read least significant byte ***********
+	            
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            least_byte = SPI1->DR;
+	            
+	            // chipselect high 
+    	        GPIOA->BSRR = GPIO_PIN_8 ;
+                                                                          
+                                                                          
+	                                                                      
+	            // save most significant byte ***********
+	            sample = ((uint32_t)(most_byte & 0x07))<<16;
+	            // save medium significant byte ***********
+	            sample += ((uint32_t)med_byte)<<8;
+	            // save least significant byte ***********
+                sample += least_byte;
+                                                                          
+	                                                                      
+                pressure = (uint16_t)(sample>>2);                    
 				
+				ring_buffer_array[ring_buffer_write_index % RING_BUFFER_LENGTH] = pressure;
+				ring_buffer_write_index++;
 			}
 		        	
 					
 			// output saved data
-		    ring_buffer_dump();
+		    ring_buffer_dump(start_marker);
+
+
 		    // stop
 		    while(1)
 		    {
@@ -143,6 +247,8 @@ int main(void)
 	  	        HAL_Delay(500);
 		    }
 		}
+
+
 
 		//*/
 

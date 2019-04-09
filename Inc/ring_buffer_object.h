@@ -6,7 +6,7 @@
 #define RING_BUFFER_LENGTH 3000
 #define RING_BUFFER_PRE_ACTION_LENGTH 300
 
-static uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
+uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
 static uint32_t ring_buffer_write_index;
 static uint32_t ring_buffer_read_index;
 static uint32_t ring_buffer_start_marker;

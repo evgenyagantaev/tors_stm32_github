@@ -10,7 +10,7 @@ uint8_t ring_buffer_set_start_marker();
 uint8_t ring_buffer_set_registration_flag();
 uint8_t ring_buffer_get_registration_flag();
 
-uint8_t	ring_buffer_dump();
+uint8_t	ring_buffer_dump(uint32_t start_marker);
 
 
 #endif

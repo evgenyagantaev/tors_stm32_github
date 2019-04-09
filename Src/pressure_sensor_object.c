@@ -75,9 +75,9 @@ uint16_t pressure_sensor_get_sample()
 	sample += least_byte;
 
 
-	current_pressure = (uint16_t)(sample>>3);
+	current_pressure = (uint16_t)(sample>>2);
 
-	return (uint16_t)(sample>>3);
+	return (uint16_t)(sample>>2);
 	//*/
 
 	/*
