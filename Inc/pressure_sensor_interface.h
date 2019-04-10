@@ -4,7 +4,7 @@
 #include "main.h"
 
 
-uint16_t read_pressure_sample();
+uint16_t pressure_sensor_get_sample();
 
 
 
