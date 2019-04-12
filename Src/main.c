@@ -1,19 +1,45 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "ring_buffer_interface.h"
-#include "ring_buffer_object.h"
+//#include "ring_buffer_interface.h"
+//#include "ring_buffer_object.h"
 #include "pressure_sensor_interface.h"
-#include "threshold_detector_interface.h"
-#include "threshold_detector_object.h"
+//#include "threshold_detector_interface.h"
+//#include "threshold_detector_object.h"
 
 /* Private variables ---------------------------------------------------------*/
 
+#define RING_BUFFER_LENGTH 9000
+uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
+uint32_t ring_buffer_write_index = 0;
+#define RING_BUFFER_PRE_ACTION_LENGTH 300
+#define THRESHOLD_DETECTOR_VALUE 2000
 /* Private variables ---------------------------------------------------------*/
 
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
+uint8_t	ring_buffer_dump(uint32_t start_marker)
+{
+	char message[64];
+	int i;
+
+	uint32_t average = 0;
+
+	for(i=0; i<RING_BUFFER_PRE_ACTION_LENGTH; i++)
+		average += ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH];
+	average /= RING_BUFFER_PRE_ACTION_LENGTH;
+
+	double coeffitient_kilopaskales = 10480 / 32768.0;
+
+	for(i=0; i<RING_BUFFER_LENGTH; i++)
+	{
+
+		sprintf(message, "%6d %5d\r\n", i*21, (int)(((int)(ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH] - average))*coeffitient_kilopaskales));
+		//sprintf(message, "%6d %5d\r\n", i*21, ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH]);
+		HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
+	}
+}
 /* Private function prototypes -----------------------------------------------*/
 
 
@@ -65,8 +91,41 @@ int main(void)
   
   	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_PIN_RESET);
 
-	HAL_Delay(1000);
-	threshold_detector_initialization();
+	//threshold_detector_initialization();
+	while(ring_buffer_write_index < RING_BUFFER_LENGTH)
+	{
+		uint16_t pressure = pressure_sensor_get_sample();
+		if((pressure >31000) && (pressure < 35000))
+		{
+			ring_buffer_array[ring_buffer_write_index] = pressure;
+			//sprintf(message, "%5d %6d\r\n", ring_buffer_write_index, ring_buffer_array[ring_buffer_write_index]);
+			//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
+			ring_buffer_write_index++;
+		}
+	}
+
+	/*
+	//DEBUGDEBUG***************************************************
+		// output saved data
+		int i;
+		for(i=0; i<RING_BUFFER_LENGTH; i++)
+		{
+			sprintf(message, "%d\r\n", ring_buffer_array[i]);
+			sprintf(message, "%5d %6d\r\n", i, ring_buffer_array[i]);
+			HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
+		}
+
+
+		    // stop
+		    while(1)
+		    {
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        HAL_Delay(500);
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        HAL_Delay(500);
+		    }
+	//DEBUGDEBUG***************************************************
+	*/
 
   	while (1)
   	{
@@ -176,6 +235,8 @@ int main(void)
 		//if(threshold_detector_action())
 		if(abs((int)((int)ring_buffer_array[(ring_buffer_write_index-250) % RING_BUFFER_LENGTH] - (int)pressure)) > THRESHOLD_DETECTOR_VALUE)
 		{
+
+
 			int i;
 	
 			uint32_t start_marker = ring_buffer_write_index - RING_BUFFER_PRE_ACTION_LENGTH;
@@ -234,6 +295,16 @@ int main(void)
 			}
 		        	
 					
+	  	    // blink****************************************
+			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    HAL_Delay(500);
+	  	    HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    HAL_Delay(500);
+			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    HAL_Delay(500);
+	  	    HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    HAL_Delay(500);
+			//**********************************************
 			// output saved data
 		    ring_buffer_dump(start_marker);
 

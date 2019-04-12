@@ -1,6 +1,7 @@
 #include "threshold_detector_object.h"
 #include "threshold_detector_interface.h"
 #include "ring_buffer_interface.h"
+#include "ring_buffer_object.h"
 #include "pressure_sensor_interface.h"
 
 
@@ -10,7 +11,7 @@ uint8_t threshold_detector_initialization()
 
 	int counter = 0;
 
-	while(counter < 3000)
+	while(counter < RING_BUFFER_LENGTH)
 	{
 		uint16_t pressure = pressure_sensor_get_sample();
 		if(pressure != 0)

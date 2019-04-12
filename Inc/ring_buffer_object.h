@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-#define RING_BUFFER_LENGTH 3000
+#define RING_BUFFER_LENGTH 9000
 #define RING_BUFFER_PRE_ACTION_LENGTH 300
 
 uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
