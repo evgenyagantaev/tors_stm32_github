@@ -10,8 +10,8 @@
 
 #define RING_BUFFER_LENGTH 9000
 uint16_t ring_buffer_array[RING_BUFFER_LENGTH];
-uint32_t ring_buffer_write_index = 0;
-#define RING_BUFFER_PRE_ACTION_LENGTH 300
+uint16_t ring_buffer_write_index = 0;
+#define RING_BUFFER_PRE_ACTION_LENGTH 1000
 #define THRESHOLD_DETECTOR_VALUE 2000
 /* Private variables ---------------------------------------------------------*/
 
@@ -35,10 +35,18 @@ uint8_t	ring_buffer_dump(uint32_t start_marker)
 	for(i=0; i<RING_BUFFER_LENGTH; i++)
 	{
 
-		sprintf(message, "%6d %5d\r\n", i*21, (int)(((int)(ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH] - average))*coeffitient_kilopaskales));
+		sprintf(message, "%6d %5d\r\n", i*11, (int)(((int)(ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH] - average))*coeffitient_kilopaskales));
 		//sprintf(message, "%6d %5d\r\n", i*21, ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH]);
 		HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
 	}
+}
+
+uint8_t primitive_delay()
+{
+	uint32_t volatile i;
+	for(i=0; i<300000; i++);
+
+	return 0;
 }
 /* Private function prototypes -----------------------------------------------*/
 
@@ -59,7 +67,7 @@ uint8_t	ring_buffer_dump(uint32_t start_marker)
 int main(void)
 {
 
-	//int i,j,k;
+	int i,j,k;
 
 	char message[256];
 
@@ -120,65 +128,23 @@ int main(void)
 		    while(1)
 		    {
 	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-	  	        HAL_Delay(500);
-	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-	  	        HAL_Delay(500);
+	  	        primitive_delay();
+				HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        primitive_delay();
 		    }
 	//DEBUGDEBUG***************************************************
 	*/
+	
+	uint8_t least_byte, med_byte, most_byte;
+    uint32_t sample;
+    uint16_t pressure;
 
+	// long delay
+	for(i=0; i<25; i++)
+		primitive_delay();
+	/*
   	while (1)
   	{
-		/*
-	  	HAL_Delay(1500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led off\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led on\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led off\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led on\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(1500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led off\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led on\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led off\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led on\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led off\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-	  	HAL_Delay(500);
-	  	HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
-		sprintf(message, "led on\r\n");
-		HAL_UART_Transmit(&huart1, message, strlen((const char *)message), 500);
-		*/
-
-
-		//uint16_t pressure = pressure_sensor_get_sample();
-	
-   		//*                                                                
-	    uint8_t least_byte, med_byte, most_byte;
-        uint32_t sample;
-	                                                                      
 	    
 	    // chipselect low
     	GPIOA->BRR = GPIO_PIN_8 ;
@@ -225,14 +191,11 @@ int main(void)
         sample += least_byte;
                                                                           
 	                                                                      
-        uint16_t pressure = (uint16_t)(sample>>2);
-        //*/
+        pressure = (uint16_t)(sample>>2);
 
 		ring_buffer_array[ring_buffer_write_index % RING_BUFFER_LENGTH] = pressure;
 		ring_buffer_write_index++;
 
-		//*
-		//if(threshold_detector_action())
 		if(abs((int)((int)ring_buffer_array[(ring_buffer_write_index-250) % RING_BUFFER_LENGTH] - (int)pressure)) > THRESHOLD_DETECTOR_VALUE)
 		{
 
@@ -304,7 +267,7 @@ int main(void)
 	  	    HAL_Delay(500);
 	  	    HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
 	  	    HAL_Delay(500);
-			//**********************************************
+			// **********************************************
 			// output saved data
 		    ring_buffer_dump(start_marker);
 
@@ -319,18 +282,182 @@ int main(void)
 		    }
 		}
 
+		//sprintf(message, "%d\r\n", pressure);
+		//HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
 
-
-		//*/
-
-		/*
-		sprintf(message, "%d\r\n", pressure);
-		HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
-		//*/		
-
-
-
+		
   	}
+	//*/
+
+
+
+	//*                                                                    	
+	// DEBUGDEBUGDEBUG  full speed ADC reading                             	
+	while(1)                              	                             	
+	{                                                                      	                            	
+		
+		
+		// check comparator
+		if((GPIOA->IDR & GPIO_PIN_2) != (uint32_t)GPIO_PIN_RESET)
+		{ 
+		
+		
+			// chipselect low                                                     	                                      
+            GPIOA->BRR = GPIO_PIN_8 ;                                          	                                
+	                                                                                                               
+            // read most significant byte ***********                                                              
+	                                                                                                               
+	        // wait for spi transmitter readiness                                                                  
+            //while ((SPI1->SR & SPI_SR_TXE) == RESET );                                                           
+            SPI1->DR = 0x55;                                                                                       
+	        // wait while a transmission complete                                                                  
+            while ((SPI1->SR & SPI_SR_RXNE) == RESET );                                                            
+	        most_byte = SPI1->DR;                                                                                  
+                                                                                                                   
+	                                                                                                               
+	        // read medium significant byte ***********                                                            
+	                                                                                                               
+	        // wait for spi transmitter readiness                                                                  
+            //while ((SPI1->SR & SPI_SR_TXE) == RESET );                                                           
+            SPI1->DR = 0x55;                                                                                       
+	        // wait while a transmission complete                                                                  
+            while ((SPI1->SR & SPI_SR_RXNE) == RESET );                                                            
+	        med_byte = SPI1->DR;                                                                                   
+                                                                                                                   
+	                                                                                                               
+	        // read least significant byte ***********                                                             
+	                                                                                                               
+	        // wait for spi transmitter readiness                                                                  
+            //while ((SPI1->SR & SPI_SR_TXE) == RESET );                                                           
+            SPI1->DR = 0x55;                                                                                       
+	        // wait while a transmission complete                                                                  
+            while ((SPI1->SR & SPI_SR_RXNE) == RESET );                                                            
+	        least_byte = SPI1->DR;                                                                                 
+	                                                                                                               
+	        // chipselect high                                                                                     
+            GPIOA->BSRR = GPIO_PIN_8 ;                                         	                                
+                                                                                                                   
+                                                                                                                   
+	                                                                                                               
+	        // save most significant byte ***********                                                              
+	        sample = ((uint32_t)(most_byte & 0x07))<<16;                                                           
+	        // save medium significant byte ***********                                                            
+	        sample += ((uint32_t)med_byte)<<8;                                                                     
+	        // save least significant byte ***********                                                             
+            sample += least_byte;                                                                                  
+                                                                                                                   
+	                                                                                                               
+            pressure = (uint16_t)(sample>>2);                                                                      
+		    if(ring_buffer_write_index >= RING_BUFFER_LENGTH)
+		    	ring_buffer_write_index = 0;
+		    ring_buffer_array[ring_buffer_write_index] = pressure;                    	
+		    ring_buffer_write_index++;                                         	                            	
+		    
+		    //sprintf(message, "%d\r\n", pressure);
+		    //HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
+		}
+		else
+		{
+
+			uint32_t start_marker;
+			if(ring_buffer_write_index < RING_BUFFER_PRE_ACTION_LENGTH)
+				 start_marker = RING_BUFFER_LENGTH  - RING_BUFFER_PRE_ACTION_LENGTH + ring_buffer_write_index;
+			else
+				 start_marker = ring_buffer_write_index - RING_BUFFER_PRE_ACTION_LENGTH;
+
+
+			uint32_t i;
+	
+			for(i=0; i<(RING_BUFFER_LENGTH - RING_BUFFER_PRE_ACTION_LENGTH); i++)
+			//for(i=0; i<0xffffffff; i++)
+			{
+	   			// chipselect low                                     
+    	        GPIOA->BRR = GPIO_PIN_8 ;
+	                                                                      
+                // read most significant byte ***********
+	                                                                      
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            most_byte = SPI1->DR;
+                
+	                                                                      
+	            // read medium significant byte ***********
+	            
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            med_byte = SPI1->DR;
+                
+	                                                                      
+	            // read least significant byte ***********
+	            
+	            // wait for spi transmitter readiness
+                //while ((SPI1->SR & SPI_SR_TXE) == RESET );
+                SPI1->DR = 0x55;
+	            // wait while a transmission complete
+                while ((SPI1->SR & SPI_SR_RXNE) == RESET );
+	            least_byte = SPI1->DR;
+	            
+	            // chipselect high 
+    	        GPIOA->BSRR = GPIO_PIN_8 ;
+                                                                          
+                                                                          
+	                                                                      
+	            // save most significant byte ***********
+	            sample = ((uint32_t)(most_byte & 0x07))<<16;
+	            // save medium significant byte ***********
+	            sample += ((uint32_t)med_byte)<<8;
+	            // save least significant byte ***********
+                sample += least_byte;
+                                                                          
+	                                                                      
+                pressure = (uint16_t)(sample>>2);                    
+				
+		    	if(ring_buffer_write_index >= RING_BUFFER_LENGTH)
+		    		ring_buffer_write_index = 0;
+		    	ring_buffer_array[ring_buffer_write_index] = pressure;                    	
+		    	ring_buffer_write_index++;                                         	                            	
+			}
+		        	
+					
+	  	    // blink****************************************
+			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    //HAL_Delay(500);
+			primitive_delay();
+	  	    HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    //HAL_Delay(500);
+			primitive_delay();
+			HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    //HAL_Delay(500);
+			primitive_delay();
+	  	    HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	    //HAL_Delay(500);
+			primitive_delay();
+			// **********************************************
+			// output saved data
+		    ring_buffer_dump(start_marker);
+
+
+		    // stop
+		    while(1)
+		    {
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        //HAL_Delay(500);
+				primitive_delay();
+	  	        HAL_GPIO_TogglePin(led0_GPIO_Port, led0_Pin); //
+	  	        //HAL_Delay(500);
+				primitive_delay();
+		    }
+		}
+	}                                                                      	
+	//*/                                                                   	
+
+
 
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -410,14 +537,16 @@ void SystemClock_Config(void)
 
     /**Configure the Systick interrupt time 
     */
-  //HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
     /**Configure the Systick 
     */
-  //HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  //HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+
+  SysTick->CTRL = 0;    //Disable Systick
 }
 
 /* USER CODE BEGIN 4 */
