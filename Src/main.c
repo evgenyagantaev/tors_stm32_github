@@ -21,6 +21,11 @@ void SystemClock_Config(void);
 
 uint8_t	ring_buffer_dump(uint32_t start_marker)
 {
+
+//#define USART_OUT
+#define SPI_OUT
+
+#ifdef USART_OUT
 	char message[64];
 	int i;
 
@@ -39,6 +44,28 @@ uint8_t	ring_buffer_dump(uint32_t start_marker)
 		//sprintf(message, "%6d %5d\r\n", i*21, ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH]);
 		HAL_UART_Transmit(&huart1, (uint8_t *)message, strlen((const char *)message), 500);
 	}
+#endif
+
+#ifdef SPI_OUT
+	int i;
+
+	uint32_t average = 0;
+
+	for(i=0; i<RING_BUFFER_PRE_ACTION_LENGTH; i++)
+		average += ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH];
+	average /= RING_BUFFER_PRE_ACTION_LENGTH;
+
+	double coeffitient_kilopaskales = 10480 / 32768.0;
+
+	for(i=0; i<RING_BUFFER_LENGTH; i++)
+	{
+    	SPI2->DR = (int16_t)(((int)(ring_buffer_array[(start_marker+i)%RING_BUFFER_LENGTH] - average))*coeffitient_kilopaskales)                                                                                      
+	    // wait while a transmission complete                                                                  
+        while ((SPI2->SR & SPI_SR_RXNE) == RESET );                                                            
+
+	}
+#endif
+
 }
 
 uint8_t primitive_delay()
